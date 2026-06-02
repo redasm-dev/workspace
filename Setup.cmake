@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
+
+find_package(Git REQUIRED)
+
+if(NOT GIT_FOUND)
+    message(FATAL_ERROR "Git is required to clone repositories. Please install Git and try again.")
+endif()
  
 # Version overrides: set via -D or environment for CI/release builds
 # e.g: cmake -DCORE_VERSION=v4.0.1 -P setup.cmake
@@ -54,28 +60,32 @@ foreach(repo ${REPOS})
         message(STATUS "[${repo}] updating to ${version}...")
 
         execute_process(
-            COMMAND git -C "${dest}" fetch --quiet
-            RESULT_VARIABLE result
-        )
-
-        execute_process(
-            COMMAND git -C "${dest}" checkout "${version}" --quiet 
+            COMMAND ${GIT_EXECUTABLE} -C "${dest}" fetch --quiet
             RESULT_VARIABLE result
         )
 
         if(NOT result EQUAL 0)
-            message(WARNING "[${repo}] failed to checkout ${version}")
+            message(FATAL_ERROR "Failed to fetch ${repo}. Aborting.")
+        endif()
+
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} -C "${dest}" checkout "${version}" --quiet 
+            RESULT_VARIABLE result
+        )
+
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Failed to checkout ${version} for ${repo}. Aborting.")
         endif()
     else()
         message(STATUS "[${repo}] cloning @ ${version}...")
 
         execute_process(
-            COMMAND git clone --branch "${version}" --quiet "${BASE_URL}/${repo}" "${dest}"
+            COMMAND ${GIT_EXECUTABLE} clone --branch "${version}" --quiet "${BASE_URL}/${repo}" "${dest}"
             RESULT_VARIABLE result
         )
 
         if(NOT result EQUAL 0)
-            message(WARNING "[${repo}] failed to clone")
+            message(FATAL_ERROR "Failed to clone ${repo}. Aborting.")
         endif()
     endif()
 endforeach()
