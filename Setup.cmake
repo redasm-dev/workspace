@@ -80,7 +80,7 @@ foreach(repo ${REPOS})
         message(STATUS "[${repo}] cloning @ ${version}...")
 
         execute_process(
-            COMMAND ${GIT_EXECUTABLE} clone --branch "${version}" --quiet "${BASE_URL}/${repo}" "${dest}"
+            COMMAND ${GIT_EXECUTABLE} clone --branch "${version}" --progress "${BASE_URL}/${repo}" "${dest}"
             RESULT_VARIABLE result
         )
 
