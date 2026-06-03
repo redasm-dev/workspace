@@ -60,21 +60,11 @@ foreach(repo ${REPOS})
         message(STATUS "[${repo}] updating to ${version}...")
 
         execute_process(
-            COMMAND ${GIT_EXECUTABLE} -C "${dest}" fetch --quiet
+            COMMAND ${GIT_EXECUTABLE} -C "${dest}" pull --ff-only
             RESULT_VARIABLE result
         )
-
         if(NOT result EQUAL 0)
-            message(FATAL_ERROR "Failed to fetch ${repo}. Aborting.")
-        endif()
-
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} -C "${dest}" checkout "${version}" --quiet 
-            RESULT_VARIABLE result
-        )
-
-        if(NOT result EQUAL 0)
-            message(FATAL_ERROR "Failed to checkout ${version} for ${repo}. Aborting.")
+            message(FATAL_ERROR "Failed to update ${repo}: local changes or diverged branch. Aborting.")
         endif()
     else()
         message(STATUS "[${repo}] cloning @ ${version}...")
