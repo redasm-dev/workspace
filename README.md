@@ -4,10 +4,24 @@ CI and developer setup for building the full REDasm project from source.
 For bug reports, feature requests and general discussion [see here](https://github.com/redasm-dev/redasm).
 
 ## Requirements
-- CMake 3.25+
-- Git
-- Qt 6
-- A C compiler (C17 Standard)
+|     Tool     |  Minimum  |
+|-------------:|:----------|
+| CMake        | 3.25      |
+| C compiler   | C17       |
+| C++ compiler | C++17     |
+| Qt           | 6.8.3 LTS |
+
+### Windows
+|      Tool      | Minimum  |
+|---------------:|:---------|
+| Visual Studio  |  2022    |
+
+Qt can be installed via [aqtinstall](https://github.com/miurahr/aqtinstall):
+ 
+```sh
+pip install aqtinstall
+aqt install-qt windows desktop 6.8.3 win64_msvc2022_64 -O C:\Qt
+```
 
 ## Getting Started
 Clone this repo and run `Setup.cmake` to fetch all components:
@@ -16,8 +30,26 @@ Clone this repo and run `Setup.cmake` to fetch all components:
 git clone https://github.com/redasm-dev/workspace
 cd workspace
 cmake -P Setup.cmake
-cmake -B build
-cmake --build build
+```
+
+Configure the build, specifying the Qt installation path:
+ 
+```sh
+# Windows
+cmake -B build -DCMAKE_PREFIX_PATH=C:\Qt\6.8.3\msvc2022_64
+ 
+# Linux (only needed if Qt is not installed system-wide)
+cmake -B build -DCMAKE_PREFIX_PATH=/path/to/qt
+```
+
+Then build:
+ 
+```sh
+# Debug
+cmake --build build --config Debug
+ 
+# Release
+cmake --build build --config Release
 ```
 
 ## Pinning Versions (CI / Release)
