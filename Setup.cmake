@@ -50,7 +50,15 @@ set(REPO_commands   ${COMMANDS_VERSION})
 set(REPO_analyzers  ${ANALYZERS_VERSION})
 set(REPO_kb         ${KB_VERSION})
  
-set(REPOS core redasm loaders processors commands analyzers kb)
+set(REPOS 
+    core 
+    redasm 
+    loaders 
+    processors 
+    commands 
+    analyzers
+    kb
+)
  
 foreach(repo ${REPOS})
     set(version ${REPO_${repo}})
