@@ -36,6 +36,15 @@ foreach(type ${REDASM_PLUGIN_TYPES})
 
             if(target_type STREQUAL "SHARED_LIBRARY")
                 redasm_stage(${target} "$<TARGET_FILE_DIR:redasm-gui>/plugins/${type}")
+
+                set_target_properties(${target} PROPERTIES
+                    INSTALL_RPATH "$ORIGIN/../../../"
+                )
+
+                install(TARGETS ${target}
+                    LIBRARY DESTINATION "lib/redasm/plugins/${type}"
+                    RUNTIME DESTINATION "lib/redasm/plugins/${type}"
+                )
             endif()
         endforeach()
     endforeach()
