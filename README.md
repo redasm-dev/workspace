@@ -4,24 +4,28 @@ CI and developer setup for building the full REDasm project from source.
 For bug reports, feature requests and general discussion [see here](https://github.com/redasm-dev/redasm).
 
 ## Requirements
-|     Tool     |  Minimum  |
-|-------------:|:----------|
-| CMake        | 3.25      |
-| C compiler   | C17       |
-| C++ compiler | C++17     |
-| Qt           | 6.8.3 LTS |
+- CMake 3.25
+- C17 (core) & C++17 (GUI)
+- Qt 6.8 LTS (GUI)
+- Git
 
 ### Windows
-|      Tool      | Minimum  |
-|---------------:|:---------|
-| Visual Studio  |  2022    |
+Tested on **Visual Studio 2022**
 
 Qt can be installed via [aqtinstall](https://github.com/miurahr/aqtinstall):
- 
+
 ```sh
 pip install aqtinstall
 aqt install-qt windows desktop 6.8.3 win64_msvc2022_64 -O C:\Qt
 ```
+
+### Linux
+All requirements are met by the default **Debian 13** repositories, no additional steps needed.
+
+```sh
+sudo apt install build-essential cmake git qt6-base-dev qt6-tools-dev
+```
+
 
 ## Getting Started
 Clone this repo and run `Setup.cmake` to fetch all components:
@@ -73,7 +77,7 @@ Defaults to `master` for all components if not specified.
 |                          Repo                          |      Description      |
 |-------------------------------------------------------:|:----------------------|
 | [core](https://github.com/redasm-dev/core)             | Core library (Engine) |
-| [gui](https://github.com/redasm-dev/redasm)            | GUI (Qt6)             |
+| [redasm](https://github.com/redasm-dev/redasm)         | GUI Frontend (Qt6)    |
 | [loaders](https://github.com/redasm-dev/loaders)       | Loader plugins        |
 | [processors](https://github.com/redasm-dev/processors) | Processor plugins     |
 | [commands](https://github.com/redasm-dev/commands)     | Command plugins       |
