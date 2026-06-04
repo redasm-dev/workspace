@@ -73,6 +73,35 @@ cmake \
 
 Defaults to `master` for all components if not specified.
 
+## Building an AppImage (Linux)
+
+Install `linuxdeploy` and the Qt plugin:
+
+```sh
+wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+```
+
+Configure and build in Release, then install into a staging directory:
+
+```sh
+cmake -B build
+cmake --build build --config Release
+cmake --install build --prefix AppDir/usr
+```
+
+Generate the AppImage:
+
+```sh
+QMAKE=$(which qmake6) ./linuxdeploy-x86_64.AppImage \
+    --appdir AppDir \
+    --plugin qt \
+    --output appimage
+```
+
+The resulting `REDasm-x86_64.AppImage` will be in the current directory.
+
 ## Repository Layout
 |                          Repo                          |      Description      |
 |-------------------------------------------------------:|:----------------------|
