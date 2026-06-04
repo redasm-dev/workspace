@@ -54,3 +54,11 @@ add_custom_target(stage_kb ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/kb" "$<TARGET_FILE_DIR:redasm-gui>/kb"
     COMMENT "Staging kb -> $<TARGET_FILE_DIR:redasm-gui>/kb/"
 )
+
+install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/kb/"
+    DESTINATION "share/redasm/kb"
+    FILES_MATCHING
+            PATTERN "*.toml"
+            PATTERN ".*" EXCLUDE
+)
