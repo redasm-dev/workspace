@@ -2,6 +2,20 @@ cmake_minimum_required(VERSION 3.25)
 
 project(redasm-workspace C CXX)
 
+if(WIN32)
+    set(CMAKE_INSTALL_BINDIR ".")
+    set(CMAKE_INSTALL_LIBDIR ".")
+    set(CMAKE_INSTALL_DATADIR ".")
+    set(CMAKE_INSTALL_INCLUDEDIR "include")
+
+    set(REDASM_INSTALL_PLUGINS "plugins/${type}")
+    set(REDASM_INSTALL_KB "kb")
+else()
+    include(GNUInstallDirs)
+    set(REDASM_INSTALL_PLUGINS "${CMAKE_INSTALL_LIBDIR}/redasm/plugins")
+    set(REDASM_INSTALL_KB "${CMAKE_INSTALL_DATADIR}/redasm/kb")
+endif()
+
 add_subdirectory(core)
 add_subdirectory(redasm)
 add_subdirectory(loaders)
@@ -37,13 +51,15 @@ foreach(type ${REDASM_PLUGIN_TYPES})
             if(target_type STREQUAL "SHARED_LIBRARY")
                 redasm_stage(${target} "$<TARGET_FILE_DIR:redasm-gui>/plugins/${type}")
 
-                set_target_properties(${target} PROPERTIES
-                    INSTALL_RPATH "$ORIGIN/../../../"
-                )
+                if(NOT WIN32)
+                    set_target_properties(${target} PROPERTIES
+                                          INSTALL_RPATH "$ORIGIN/../../../"
+                    )
+                endif()
 
                 install(TARGETS ${target}
-                    LIBRARY DESTINATION "lib/redasm/plugins/${type}"
-                    RUNTIME DESTINATION "lib/redasm/plugins/${type}"
+                        LIBRARY DESTINATION "${REDASM_INSTALL_PLUGINS}/${type}"
+                        RUNTIME DESTINATION "${REDASM_INSTALL_PLUGINS}/${type}"
                 )
             endif()
         endforeach()
@@ -57,7 +73,7 @@ add_custom_target(stage_kb ALL
 
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/kb/"
-    DESTINATION "share/redasm/kb"
+    DESTINATION ${REDASM_INSTALL_KB}
     FILES_MATCHING
             PATTERN "*.toml"
             PATTERN ".*" EXCLUDE
