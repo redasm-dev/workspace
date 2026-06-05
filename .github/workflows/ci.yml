@@ -66,7 +66,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: REDasm-linux
+          name: REDasm-linux-x86_64
           path: REDasm-x86_64.AppImage
           retention-days: 7
  
@@ -97,14 +97,14 @@ jobs:
  
       - name: Install
         run: cmake --install build --prefix redasm-windows-x64 --config Release
- 
-      - name: Package
-        run: Compress-Archive -Path redasm-windows-x64/* -DestinationPath REDasm-windows-x64.zip
+
+      - name: Deploy Qt dependencies
+        run: windeployqt --no-translations redasm-windows-x64/redasm-gui.exe
  
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: REDasm-windows
-          path: REDasm-windows-x64.zip
+          name: REDasm-windows-x86_64
+          path: redasm-windows-x64/
           retention-days: 7
  
