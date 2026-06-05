@@ -1,0 +1,43 @@
+name: Build Windows
+
+on:
+  workflow_call:
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout workspace
+        uses: actions/checkout@v6
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          cache: true
+
+      - name: Clone repositories
+        run: cmake -P Setup.cmake
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Install
+        run: cmake --install build --prefix redasm-windows-x86_64 --config Release
+
+      - name: Deploy Qt dependencies
+        run: windeployqt --no-translations redasm-windows-x86_64/redasm-gui.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: REDasm-windows-x86_64
+          path: redasm-windows-x86_64/
+          retention-days: 7

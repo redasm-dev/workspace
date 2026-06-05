@@ -1,109 +1,19 @@
 name: CI
- 
+
 on:
   repository_dispatch:
     types: [ repo_updated ]
   push:
     branches: [ master ]
   workflow_dispatch:
- 
+
 concurrency:
   group: ci
   cancel-in-progress: true
- 
+
 jobs:
   build-linux:
-    runs-on: ubuntu-24.04
- 
-    steps:
-      - name: Checkout workspace
-        uses: actions/checkout@v6
+    uses: ./.github/workflows/build-linux.yml
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
-          host: 'linux'
-          target: 'desktop'
-          arch: 'linux_gcc_64'
-          cache: true
- 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            build-essential cmake git \
-            wget
- 
-      - name: Clone repositories
-        run: cmake -P Setup.cmake
- 
-      - name: Configure
-        run: cmake -B build
- 
-      - name: Build
-        run: cmake --build build --config Release --parallel
- 
-      - name: Install into AppDir
-        run: cmake --install build --prefix AppDir/usr
- 
-      - name: Download linuxdeploy
-        run: |
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
- 
-      - name: Build AppImage
-        env:
-          QMAKE: qmake6
-        run: |
-          ./linuxdeploy-x86_64.AppImage \
-            --appdir AppDir \
-            --plugin qt \
-            --output appimage
- 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: REDasm-linux-x86_64
-          path: REDasm-x86_64.AppImage
-          retention-days: 7
- 
   build-windows:
-    runs-on: windows-2022
- 
-    steps:
-      - name: Checkout workspace
-        uses: actions/checkout@v6
- 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.8.3'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_msvc2022_64'
-          cache: true
- 
-      - name: Clone repositories
-        run: cmake -P Setup.cmake
- 
-      - name: Configure
-        run: cmake -B build -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
- 
-      - name: Build
-        run: cmake --build build --config Release --parallel
- 
-      - name: Install
-        run: cmake --install build --prefix redasm-windows-x64 --config Release
-
-      - name: Deploy Qt dependencies
-        run: windeployqt --no-translations redasm-windows-x64/redasm-gui.exe
- 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: REDasm-windows-x86_64
-          path: redasm-windows-x64/
-          retention-days: 7
- 
+    uses: ./.github/workflows/build-windows.yml

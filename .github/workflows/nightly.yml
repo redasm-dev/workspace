@@ -1,0 +1,67 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC
+  workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      changelog: ${{ steps.check.outputs.changelog }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check for changes
+        id: check
+        uses: ./.github/actions/check-nightly
+
+  build-linux:
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
+    uses: ./.github/workflows/build-linux.yml
+
+  build-windows:
+    needs: check
+    if: needs.check.outputs.should_build == 'true'
+    uses: ./.github/workflows/build-windows.yml
+
+  publish:
+    needs: [ check, build-linux, build-windows ]
+    if: needs.check.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: REDasm-linux-x86_64
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: REDasm-windows-x86_64
+          path: redasm-windows-x86_64/
+
+      - name: Package Windows
+        run: zip -r REDasm-windows-x86_64.zip redasm-windows-x86_64/
+
+      - name: Publish nightly release
+        uses: softprops/action-gh-release@v3
+        with:
+          token: ${{ secrets.RD_WORKSPACE_CI_TOKEN }}
+          repository: redasm-dev/redasm
+          tag_name: nightly
+          name: "Nightly Build"
+          prerelease: true
+          body: ${{ needs.check.outputs.changelog }}
+          files: |
+            REDasm-linux-x86_64.AppImage
+            REDasm-windows-x86_64.zip
