@@ -1,51 +1,28 @@
-name: Nightly
+name: Release
 
 on:
-  schedule:
-    - cron: '0 2 * * *'  # 2 AM UTC
-  workflow_dispatch:
-
-concurrency:
-  group: nightly
-  cancel-in-progress: true
+  push:
+    tags: [ 'v*' ]
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    outputs:
-      should_build: ${{ steps.check.outputs.should_build }}
-      changelog: ${{ steps.check.outputs.changelog }}
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Check for changes
-        id: check
-        uses: ./.github/actions/check-nightly
-
   build-linux:
-    needs: check
-    if: needs.check.outputs.should_build == 'true'
     uses: ./.github/workflows/build-linux.yml
 
   build-windows:
-    needs: check
-    if: needs.check.outputs.should_build == 'true'
     uses: ./.github/workflows/build-windows.yml
 
   publish:
-    needs: [ check, build-linux, build-windows ]
-    if: needs.check.outputs.should_build == 'true'
+    needs: [ build-linux, build-windows ]
     runs-on: ubuntu-latest
 
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: REDasm-linux-x86_64
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: REDasm-windows-x86_64
           path: redasm-windows-x86_64/
@@ -55,8 +32,8 @@ jobs:
 
       - name: Sign artifacts
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.RD_NIGHTLY_GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.RD_NIGHTLY_GPG_PASSPHRASE }}
+          GPG_PRIVATE_KEY: ${{ secrets.RD_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.RD_GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
@@ -64,15 +41,15 @@ jobs:
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
             --passphrase-fd 0 --detach-sign --armor REDasm-windows-x86_64.zip
 
-      - name: Publish nightly release
+      - name: Publish release
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RD_WORKSPACE_CI_TOKEN }}
           repository: redasm-dev/redasm
-          tag_name: nightly
-          name: "Nightly Build"
-          prerelease: true
-          body: ${{ needs.check.outputs.changelog }}
+          tag_name: ${{ github.ref_name }}
+          name: "REDasm ${{ github.ref_name }}"
+          prerelease: false
+          draft: true
           files: |
             REDasm-linux-x86_64.AppImage
             REDasm-linux-x86_64.AppImage.asc

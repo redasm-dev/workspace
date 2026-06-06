@@ -20,7 +20,7 @@ aqt install-qt windows desktop 6.8.3 win64_msvc2022_64 -O C:\Qt
 ```
 
 ### Linux
-All requirements are met by the default **Debian 13** repositories, no additional steps needed.
+All requirements are met by the default **Ubuntu 24.04 LTS** repositories, no additional steps needed.
 
 ```sh
 sudo apt install build-essential cmake git qt6-base-dev qt6-tools-dev
@@ -101,6 +101,32 @@ QMAKE=$(which qmake6) ./linuxdeploy-x86_64.AppImage \
 ```
 
 The resulting `REDasm-x86_64.AppImage` will be in the current directory.
+
+## Verifying Release Signatures
+
+All release artifacts are GPG signed. Import the appropriate public key to verify:
+
+```sh
+# Stable releases
+gpg --keyserver keys.openpgp.org --recv-keys B0C728D7021EEEE9D9B859043AF46EB2201FFB56
+ 
+# Nightly builds
+gpg --keyserver keys.openpgp.org --recv-keys A2391AFACAE2EE52B35541DD65F948A2F6BB294A
+```
+
+Verify a downloaded artifact:
+ 
+```sh
+gpg --verify REDasm-linux-x86_64.AppImage.asc REDasm-linux-x86_64.AppImage
+gpg --verify REDasm-windows-x86_64.zip.asc REDasm-windows-x86_64.zip
+```
+
+Key fingerprints:
+ 
+| Key | Fingerprint |
+|---|---|
+| REDasm Release `release@redasm.dev` | `B0C7 28D7 021E EEE9 D9B8  5904 3AF4 6EB2 201F FB56` |
+| REDasm Nightly `nightly@redasm.dev` | `A239 1AFA CAE2 EE52 B355  41DD 65F9 48A2 F6BB 294A` |
 
 ## Repository Layout
 |                          Repo                          |      Description      |
