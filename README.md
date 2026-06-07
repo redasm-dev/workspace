@@ -39,7 +39,7 @@ cmake -P Setup.cmake
 Configure the build, specifying the Qt installation path:
  
 ```sh
-# Windows
+# Windows (adjust the Qt path to match your installation)
 cmake -B build -DCMAKE_PREFIX_PATH=C:\Qt\6.8.3\msvc2022_64
  
 # Linux (only needed if Qt is not installed system-wide)
