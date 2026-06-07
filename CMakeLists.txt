@@ -23,12 +23,6 @@ add_subdirectory(processors)
 add_subdirectory(commands)
 add_subdirectory(kb)
 
-set(REDASM_PLUGIN_TYPES
-    loaders
-    processors
-    commands
-)
-
 macro(redasm_stage target dest)
     add_custom_target(stage_${target} ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory "${dest}"
@@ -39,6 +33,12 @@ macro(redasm_stage target dest)
 endmacro()
 
 redasm_stage(redasm "$<TARGET_FILE_DIR:redasm-gui>")
+
+set(REDASM_PLUGIN_TYPES
+    loaders
+    processors
+    commands
+)
 
 foreach(type ${REDASM_PLUGIN_TYPES})
     get_property(subdirs DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${type}" PROPERTY SUBDIRECTORIES)
@@ -51,17 +51,6 @@ foreach(type ${REDASM_PLUGIN_TYPES})
 
             if(target_type STREQUAL "SHARED_LIBRARY")
                 redasm_stage(${target} "$<TARGET_FILE_DIR:redasm-gui>/plugins/${type}")
-
-                if(NOT WIN32)
-                    set_target_properties(${target} PROPERTIES
-                                          INSTALL_RPATH "$ORIGIN/../../../"
-                    )
-                endif()
-
-                install(TARGETS ${target}
-                        LIBRARY DESTINATION "${REDASM_INSTALL_PLUGINS}/${type}"
-                        RUNTIME DESTINATION "${REDASM_INSTALL_PLUGINS}/${type}"
-                )
             endif()
         endforeach()
     endforeach()
