@@ -21,6 +21,7 @@ add_subdirectory(redasm)
 add_subdirectory(loaders)
 add_subdirectory(processors)
 add_subdirectory(commands)
+add_subdirectory(kb)
 
 set(REDASM_PLUGIN_TYPES
     loaders
@@ -71,10 +72,3 @@ add_custom_target(stage_kb ALL
     COMMENT "Staging kb -> $<TARGET_FILE_DIR:redasm-gui>/kb/"
 )
 
-install(
-    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/kb/"
-    DESTINATION ${REDASM_INSTALL_KB}
-    FILES_MATCHING
-            PATTERN "*.toml"
-            PATTERN ".*" EXCLUDE
-)
