@@ -86,7 +86,7 @@ chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
 Configure and build in Release, then install into a staging directory:
 
 ```sh
-cmake -B build
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build build --config Release
 cmake --install build --prefix AppDir/usr
 ```
