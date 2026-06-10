@@ -64,13 +64,17 @@ jobs:
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
             --passphrase-fd 0 --detach-sign --armor REDasm-windows-x86_64.zip
 
+      - name: Get current date
+        id: date
+        run: echo "date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
       - name: Publish nightly release
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RD_WORKSPACE_CI_TOKEN }}
           repository: redasm-dev/redasm
           tag_name: nightly
-          name: "Nightly Build"
+          name: "Nightly Build (${{ steps.date.outputs.date }})"
           prerelease: true
           body: ${{ needs.check.outputs.changelog }}
           files: |
