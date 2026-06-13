@@ -37,12 +37,15 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
+      - name: Add DLL to PATH
+        if: inputs.run_tests
+        shell: pwsh
+        run: echo "$(pwd)/build/redasm/Release" >> $env:GITHUB_PATH
+
       - name: Run tests
         if: inputs.run_tests
-        shell: bash
-        run: |
-          echo "$(pwd)/build/redasm/Release" >> $GITHUB_PATH
-          ctest --test-dir build -C Release --output-on-failure
+        shell: pwsh
+        run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Install
         run: cmake --install build --prefix redasm-windows-x86_64 --config Release
