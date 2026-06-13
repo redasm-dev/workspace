@@ -49,11 +49,42 @@ cmake -B build -DCMAKE_PREFIX_PATH=/path/to/qt
 Then build:
  
 ```sh
-# Debug
-cmake --build build --config Debug
+# Linux: build type set at configure time, not build time
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+
+# Windows: build type set at build time via --config
+cmake --build build --config Release --parallel
+```
+
+If needed, change the build type to `Debug`
+
+## Running Tests
  
-# Release
-cmake --build build --config Release
+Fetch the test suite and sample binaries alongside the other components:
+
+```sh
+cmake -DREDASM_FETCH_TESTS=ON -P Setup.cmake
+```
+ 
+Configure with the samples path and build:
+ 
+```sh
+# Linux
+cmake -B build -DREDASM_SAMPLES=/path/to/workspace/samples
+ 
+# Windows
+cmake -B build -DCMAKE_PREFIX_PATH=C:\Qt\6.8.3\msvc2022_64 -DREDASM_SAMPLES=C:\path\to\workspace\samples
+```
+ 
+Run the tests:
+ 
+```sh
+# Linux
+ctest --test-dir build --output-on-failure
+ 
+# Windows
+ctest --test-dir build -C Release --output-on-failure
 ```
 
 ## Pinning Versions (CI / Release)
@@ -138,3 +169,5 @@ Key fingerprints:
 | [commands](https://github.com/redasm-dev/commands)     | Command plugins       |
 | [analyzers](https://github.com/redasm-dev/analyzers)   | Analyzer plugins      |
 | [kb](https://github.com/redasm-dev/kb)                 | Knowledge Base        |
+| [tests](https://github.com/redasm-dev/tests)           | Test suite            |
+| [samples](https://github.com/redasm-dev/samples)       | Sample binaries       |
