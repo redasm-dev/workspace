@@ -23,6 +23,11 @@ add_subdirectory(processors)
 add_subdirectory(commands)
 add_subdirectory(kb)
 
+if(REDASM_SAMPLES)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
 macro(redasm_stage target dest)
     add_custom_target(stage_${target} ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory "${dest}"

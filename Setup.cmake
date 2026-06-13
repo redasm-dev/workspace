@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 
 find_package(Git REQUIRED)
 
+option(REDASM_FETCH_TESTS "Fetch tests and samples repositories" OFF)
+
 if(NOT GIT_FOUND)
     message(FATAL_ERROR "Git is required to clone repositories. Please install Git and try again.")
 endif()
@@ -59,6 +61,11 @@ set(REPOS
     analyzers
     kb
 )
+
+if(REDASM_FETCH_TESTS)
+    list(APPEND REPOS tests)
+    list(APPEND REPOS samples)
+endif()
  
 foreach(repo ${REPOS})
     set(version ${REPO_${repo}})
