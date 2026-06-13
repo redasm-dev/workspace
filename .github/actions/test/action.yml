@@ -1,9 +1,0 @@
-name: Run Tests
-description: Run test suite
-
-runs:
-  using: composite
-  steps:
-    - name: Run tests
-      shell: bash
-      run: ctest --test-dir build -C Release --output-on-failure

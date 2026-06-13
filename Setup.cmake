@@ -10,6 +10,16 @@ if(NOT DEFINED REDASM_FETCH_TESTS)
     set(REDASM_FETCH_TESTS OFF)
 endif()
 
+if(NOT DEFINED REDASM_SHALLOW)
+    set(REDASM_SHALLOW OFF)
+endif()
+
+if(REDASM_SHALLOW)
+    set(depth_arg "--depth=1")
+else()
+    set(depth_arg "")
+endif()
+
 # Version overrides: set via -D or environment for CI/release builds
 # e.g: cmake -DCORE_VERSION=v4.0.1 -P setup.cmake
 set(CORE_VERSION       $ENV{CORE_VERSION})
@@ -89,7 +99,7 @@ foreach(repo ${REPOS})
         message(STATUS "[${repo}] cloning @ ${version}...")
 
         execute_process(
-            COMMAND ${GIT_EXECUTABLE} clone --branch "${version}" --progress "${BASE_URL}/${repo}" "${dest}"
+            COMMAND ${GIT_EXECUTABLE} clone ${depth_arg} --branch "${version}" --progress "${BASE_URL}/${repo}" "${dest}"
             RESULT_VARIABLE result
         )
 

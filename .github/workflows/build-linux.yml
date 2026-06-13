@@ -33,20 +33,21 @@ jobs:
             build-essential cmake git wget
 
       - name: Clone repositories
-        run: cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} -P Setup.cmake
+        run: cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} -DREDASM_SHALLOW=ON -P Setup.cmake
 
       - name: Configure
         run: cmake -B build \
                    -DCMAKE_BUILD_TYPE=Release \
                    -DCMAKE_INSTALL_PREFIX=/usr \
-                   ${{ inputs.run_tests && format('-DREDASM_FETCH_TESTS=ON -DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
+                   ${{ inputs.run_tests && format('-DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
 
       - name: Build
         run: cmake --build build --parallel
 
       - name: Run tests
         if: inputs.run_tests
-        uses: ./.github/actions/test
+        shell: bash
+        run: ctest --test-dir build --output-on-failure
 
       - name: Install into AppDir
         run: cmake --install build --prefix AppDir/usr
