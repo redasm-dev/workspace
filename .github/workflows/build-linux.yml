@@ -2,6 +2,12 @@ name: Build Linux
 
 on:
   workflow_call:
+    inputs:
+      run_tests:
+        description: Build and run tests
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-linux:
@@ -27,13 +33,20 @@ jobs:
             build-essential cmake git wget
 
       - name: Clone repositories
-        run: cmake -P Setup.cmake
+        run: cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} -P Setup.cmake
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+        run: cmake -B build \
+                   -DCMAKE_BUILD_TYPE=Release \
+                   -DCMAKE_INSTALL_PREFIX=/usr \
+                   ${{ inputs.run_tests && format('-DREDASM_FETCH_TESTS=ON -DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
 
       - name: Build
         run: cmake --build build --parallel
+
+      - name: Run tests
+        if: inputs.run_tests
+        uses: ./.github/actions/test
 
       - name: Install into AppDir
         run: cmake --install build --prefix AppDir/usr

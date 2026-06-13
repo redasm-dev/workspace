@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.25)
 
 find_package(Git REQUIRED)
 
-option(REDASM_FETCH_TESTS "Fetch tests and samples repositories" OFF)
-
 if(NOT GIT_FOUND)
     message(FATAL_ERROR "Git is required to clone repositories. Please install Git and try again.")
 endif()
  
+if(NOT DEFINED REDASM_FETCH_TESTS)
+    set(REDASM_FETCH_TESTS OFF)
+endif()
+
 # Version overrides: set via -D or environment for CI/release builds
 # e.g: cmake -DCORE_VERSION=v4.0.1 -P setup.cmake
 set(CORE_VERSION       $ENV{CORE_VERSION})
@@ -51,6 +53,8 @@ set(REPO_processors ${PROCESSORS_VERSION})
 set(REPO_commands   ${COMMANDS_VERSION})
 set(REPO_analyzers  ${ANALYZERS_VERSION})
 set(REPO_kb         ${KB_VERSION})
+set(REPO_tests      "master")  # no tagging here
+set(REPO_samples    "master")  # no tagging here
  
 set(REPOS 
     core 

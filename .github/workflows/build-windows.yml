@@ -2,6 +2,12 @@ name: Build Windows
 
 on:
   workflow_call:
+    inputs:
+      run_tests:
+        description: Build and run test suite
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-windows:
@@ -21,13 +27,19 @@ jobs:
           cache: true
 
       - name: Clone repositories
-        run: cmake -P Setup.cmake
+        run: cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} -P Setup.cmake
 
       - name: Configure
-        run: cmake -B build -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
+        run: cmake -B build `
+                   -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}" `
+                   ${{ inputs.run_tests && format('-DREDASM_FETCH_TESTS=ON -DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
 
       - name: Build
         run: cmake --build build --config Release --parallel
+
+      - name: Run tests
+        if: inputs.run_tests
+        uses: ./.github/actions/test
 
       - name: Install
         run: cmake --install build --prefix redasm-windows-x86_64 --config Release
