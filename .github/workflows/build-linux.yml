@@ -36,10 +36,7 @@ jobs:
         run: cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} -DREDASM_SHALLOW=ON -P Setup.cmake
 
       - name: Configure
-        run: cmake -B build \
-                   -DCMAKE_BUILD_TYPE=Release \
-                   -DCMAKE_INSTALL_PREFIX=/usr \
-                   ${{ inputs.run_tests && format('-DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ${{ inputs.run_tests && format('-DREDASM_SAMPLES={0}/samples', github.workspace) || '' }}
 
       - name: Build
         run: cmake --build build --parallel
