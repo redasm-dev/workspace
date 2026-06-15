@@ -2,7 +2,7 @@ name: Cleanup cancelled runs
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # 4 AM UTC, after nightly
+    - cron: '0 3 * * *'  # 3 AM UTC, after nightly
   workflow_dispatch:
 
 jobs:
