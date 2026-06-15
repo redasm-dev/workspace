@@ -29,7 +29,7 @@ runs:
                   repo: "redasm",
                   tag: "nightly"
               });
-              since = tag.data.created_at;
+              since = tag.data.published_at;
               console.log(`Last nightly: ${since}`);
           } catch (e) {
               console.log("No previous nightly found, building unconditionally");
