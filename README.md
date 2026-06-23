@@ -88,21 +88,38 @@ ctest --test-dir build -C Release --output-on-failure
 ```
 
 ## Pinning Versions (CI / Release)
-Each component version can be overridden via `-D` flags or environment variables:
-
+Pin every component to the same version with a single flag:
+ 
 ```sh
-cmake \
-  -DCORE_VERSION=v4.0.1 \
-  -DREDASM_VERSION=v4.0.1 \
-  -DLOADERS_VERSION=v4.0.1 \
-  -DPROCESSORS_VERSION=v4.0.1 \
-  -DCOMMANDS_VERSION=v4.0.1 \
-  -DANALYZERS_VERSION=v4.0.1 \
-  -DKB_VERSION=v4.0.1 \
-  -P Setup.cmake
+cmake -DREDASM_VERSION_DEFAULT=v4.0.1 -P Setup.cmake
 ```
 
 Defaults to `master` for all components if not specified.
+
+Individual components can be overridden on top of the default (useful for local testing against a branch):
+```sh
+cmake \
+  -DREDASM_VERSION_DEFAULT=v4.0.1 \
+  -DLOADERS_VERSION=my-feature-branch \
+  -P Setup.cmake
+```
+Available overrides: `CORE_VERSION`, `GUI_VERSION`, `LOADERS_VERSION`, `PROCESSORS_VERSION`,
+`COMMANDS_VERSION`, `ANALYZERS_VERSION`.  
+Each falls back to `REDASM_VERSION_DEFAULT` if unset.
+
+### Knowledge Base has it's own versioning
+ 
+The `kb` can be compatible within a series of REDasm releases.  
+Because of this, `KB_VERSION` does **not** fall back to `REDASM_VERSION_DEFAULT`: it always defaults straight to `master`,
+but it can be overrided to a specific Git ref, if needed:
+
+```sh
+# core/redasm/loaders/... pinned to v4.0.1, kb still tracks master
+cmake -DREDASM_VERSION_DEFAULT=v4.0.1 -P Setup.cmake
+ 
+# pin kb explicitly 
+cmake -DREDASM_VERSION_DEFAULT=v4.0.1 -DKB_VERSION=kb-v1.0 -P Setup.cmake
+```
 
 ## Building an AppImage (Linux)
 

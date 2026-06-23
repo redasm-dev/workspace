@@ -20,34 +20,44 @@ else()
     set(depth_arg "")
 endif()
 
-# Version overrides: set via -D or environment for CI/release builds
+# Base version: applies to every repo unless overridden individually below.
+# e.g: cmake -DREDASM_VERSION_DEFAULT=v4.0.1 -P Setup.cmake
+if(NOT DEFINED REDASM_VERSION_DEFAULT)
+    set(REDASM_VERSION_DEFAULT $ENV{REDASM_VERSION_DEFAULT})
+endif()
+
+if(NOT REDASM_VERSION_DEFAULT)
+    set(REDASM_VERSION_DEFAULT "master")
+endif()
+
+# Per component version overrides: set via -D or environment for CI/release builds
 # e.g: cmake -DCORE_VERSION=v4.0.1 -P setup.cmake
 set(CORE_VERSION       $ENV{CORE_VERSION})
-set(REDASM_VERSION     $ENV{REDASM_VERSION})
+set(GUI_VERSION        $ENV{GUI_VERSION})
 set(LOADERS_VERSION    $ENV{LOADERS_VERSION})
 set(PROCESSORS_VERSION $ENV{PROCESSORS_VERSION})
 set(COMMANDS_VERSION   $ENV{COMMANDS_VERSION})
 set(ANALYZERS_VERSION  $ENV{ANALYZERS_VERSION})
-set(KB_VERSION         $ENV{KB_VERSION})
  
 # Allow -D overrides to take precedence over environment
+# unset falls back to the shared default rather than a hardcoded "master".
 if(NOT CORE_VERSION)
-    set(CORE_VERSION "master")
+    set(CORE_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
-if(NOT REDASM_VERSION)
-    set(REDASM_VERSION "master")
+if(NOT GUI_VERSION)
+    set(GUI_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
 if(NOT LOADERS_VERSION)
-    set(LOADERS_VERSION "master")
+    set(LOADERS_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
 if(NOT PROCESSORS_VERSION)
-    set(PROCESSORS_VERSION "master")
+    set(PROCESSORS_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
 if(NOT COMMANDS_VERSION)
-    set(COMMANDS_VERSION "master")
+    set(COMMANDS_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
 if(NOT ANALYZERS_VERSION)
-    set(ANALYZERS_VERSION "master")
+    set(ANALYZERS_VERSION "${REDASM_VERSION_DEFAULT}")
 endif()
 if(NOT KB_VERSION)
     set(KB_VERSION "master")
@@ -57,7 +67,7 @@ set(BASE_URL "https://github.com/redasm-dev")
  
 # Map repo name -> version
 set(REPO_core       ${CORE_VERSION})
-set(REPO_redasm     ${REDASM_VERSION})
+set(REPO_redasm     ${GUI_VERSION})
 set(REPO_loaders    ${LOADERS_VERSION})
 set(REPO_processors ${PROCESSORS_VERSION})
 set(REPO_commands   ${COMMANDS_VERSION})
@@ -68,7 +78,7 @@ set(REPO_samples    "master")  # no tagging here
  
 set(REPOS 
     core 
-    redasm 
+    redasm
     loaders 
     processors 
     commands 
