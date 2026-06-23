@@ -152,7 +152,7 @@ The resulting `REDasm-x86_64.AppImage` will be in the current directory.
 
 ## Verifying Release Signatures
 
-All release artifacts are GPG signed. Import the appropriate public key to verify:
+All nightly and release's checksums are GPG signed, import the appropriate public key to verify:
 
 ```sh
 # Stable releases
@@ -162,12 +162,19 @@ gpg --keyserver keys.openpgp.org --recv-keys B0C728D7021EEEE9D9B859043AF46EB2201
 gpg --keyserver keys.openpgp.org --recv-keys A2391AFACAE2EE52B35541DD65F948A2F6BB294A
 ```
 
-Verify a downloaded artifact:
+Each artifact ships with a `.sha256` checksum file and a `.sha256.asc` signature of that checksum file.  
+Verify in two steps: first the signature, then the checksum:
  
 ```sh
-gpg --verify REDasm-linux-x86_64.AppImage.asc REDasm-linux-x86_64.AppImage
-gpg --verify REDasm-windows-x86_64.zip.asc REDasm-windows-x86_64.zip
+# 1. Verify the checksum file itself is authentic
+gpg --verify REDasm-4.0.1-linux-x86_64.AppImage.sha256.asc REDasm-4.0.1-linux-x86_64.AppImage.sha256
+gpg --verify REDasm-4.0.1-windows-x86_64.zip.sha256.asc REDasm-4.0.1-windows-x86_64.zip.sha256
+
+# 2. Verify the downloaded artifact matches that checksum
+sha256sum -c REDasm-4.0.1-linux-x86_64.AppImage.sha256
+sha256sum -c REDasm-4.0.1-windows-x86_64.zip.sha256
 ```
+For nightly builds, filenames use `nightly` in place of the version.
 
 Key fingerprints:
  

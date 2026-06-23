@@ -50,19 +50,34 @@ jobs:
           name: REDasm-windows-x86_64
           path: redasm-windows-x86_64/
 
+      - name: Rename AppImage
+        run: mv REDasm-linux-x86_64.AppImage REDasm-nightly-linux-x86_64.AppImage
+ 
       - name: Package Windows
-        run: zip -r REDasm-windows-x86_64.zip redasm-windows-x86_64/
+        run: zip -r REDasm-nightly-windows-x86_64.zip redasm-windows-x86_64/
 
-      - name: Sign artifacts
+      - name: Checksum artifacts
+        run: |
+          sha256sum REDasm-nightly-linux-x86_64.AppImage > REDasm-nightly-linux-x86_64.AppImage.sha256
+          sha256sum REDasm-nightly-windows-x86_64.zip > REDasm-nightly-windows-x86_64.zip.sha256
+
+      - name: Sign checksums
         env:
           GPG_PRIVATE_KEY: ${{ secrets.RD_NIGHTLY_GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.RD_NIGHTLY_GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
-            --passphrase-fd 0 --detach-sign --armor REDasm-linux-x86_64.AppImage
+            --passphrase-fd 0 --detach-sign --armor REDasm-nightly-linux-x86_64.AppImage.sha256
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
-            --passphrase-fd 0 --detach-sign --armor REDasm-windows-x86_64.zip
+            --passphrase-fd 0 --detach-sign --armor REDasm-nightly-windows-x86_64.zip.sha256
+
+      - name: Verify signatures and checksums
+        run: |
+          gpg --verify REDasm-nightly-linux-x86_64.AppImage.sha256.asc REDasm-nightly-linux-x86_64.AppImage.sha256
+          gpg --verify REDasm-nightly-windows-x86_64.zip.sha256.asc REDasm-nightly-windows-x86_64.zip.sha256
+          sha256sum -c REDasm-nightly-linux-x86_64.AppImage.sha256
+          sha256sum -c REDasm-nightly-windows-x86_64.zip.sha256
 
       - name: Get current date
         id: date
@@ -78,7 +93,9 @@ jobs:
           prerelease: true
           body: ${{ needs.check.outputs.changelog }}
           files: |
-            REDasm-linux-x86_64.AppImage
-            REDasm-linux-x86_64.AppImage.asc
-            REDasm-windows-x86_64.zip
-            REDasm-windows-x86_64.zip.asc
+            REDasm-nightly-linux-x86_64.AppImage
+            REDasm-nightly-linux-x86_64.AppImage.sha256
+            REDasm-nightly-linux-x86_64.AppImage.sha256.asc
+            REDasm-nightly-windows-x86_64.zip
+            REDasm-nightly-windows-x86_64.zip.sha256
+            REDasm-nightly-windows-x86_64.zip.sha256.asc
