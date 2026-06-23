@@ -25,12 +25,12 @@ jobs:
 
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: REDasm-linux-x86_64
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: REDasm-windows-x86_64
           path: redasm-windows-x86_64/
@@ -55,7 +55,7 @@ jobs:
           token: ${{ secrets.RD_WORKSPACE_CI_TOKEN }}
           repository: redasm-dev/redasm
           tag_name: ${{ github.event.client_payload.tag }}
-          name: "REDasm ${{ github.event.client_payload.tag }}"
+          name: "${{ github.event.client_payload.tag }}"
           prerelease: false
           draft: true
           files: |
