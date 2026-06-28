@@ -20,6 +20,7 @@ add_subdirectory(core)
 add_subdirectory(redasm)
 add_subdirectory(loaders)
 add_subdirectory(processors)
+add_subdirectory(analyzers)
 add_subdirectory(commands)
 add_subdirectory(kb)
 
@@ -42,6 +43,7 @@ redasm_stage(redasm "$<TARGET_FILE_DIR:redasm-gui>")
 set(REDASM_PLUGIN_TYPES
     loaders
     processors
+    analyzers
     commands
 )
 

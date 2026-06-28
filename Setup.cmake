@@ -81,8 +81,8 @@ set(REPOS
     redasm
     loaders 
     processors 
-    commands 
     analyzers
+    commands 
     kb
 )
 
