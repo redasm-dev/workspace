@@ -4,7 +4,7 @@ CI and developer setup for building the full REDasm project from source.
 For bug reports, feature requests and general discussion [see here](https://github.com/redasm-dev/redasm).
 
 ## Requirements
-- CMake 3.25
+- CMake 3.20
 - C17 (core) & C++17 (GUI)
 - Qt 6.8 LTS (GUI)
 - Git
