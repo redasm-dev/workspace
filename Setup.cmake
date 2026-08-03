@@ -120,5 +120,5 @@ foreach(repo ${REPOS})
 endforeach()
  
 message(STATUS "Done. Now run:")
-message(STATUS "  cmake -B build")
+message(STATUS "  cmake -B build -DCMAKE_BUILD_TYPE=Release")
 message(STATUS "  cmake --build build")
