@@ -21,3 +21,8 @@ jobs:
     uses: ./.github/workflows/build-windows.yml
     with:
       run_tests: true
+
+  build-freebsd:
+    uses: ./.github/workflows/build-freebsd.yml
+    with:
+      run_tests: true
