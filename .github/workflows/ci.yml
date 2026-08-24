@@ -22,6 +22,11 @@ jobs:
     with:
       run_tests: true
 
+  build-macos:
+    uses: ./.github/workflows/build-macos.yml
+    with:
+      run_tests: true
+
   build-freebsd:
     uses: ./.github/workflows/build-freebsd.yml
     with:
