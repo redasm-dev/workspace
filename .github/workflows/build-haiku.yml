@@ -1,0 +1,50 @@
+name: Build Haiku
+
+on:
+  workflow_call:
+    inputs:
+      run_tests:
+        type: boolean
+        default: false
+      version:
+        type: string
+        default: ''
+
+jobs:
+  build-haiku:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: cpa.sh {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Start VM
+        uses: cross-platform-actions/action@v1.4.0
+        with:
+          operating_system: haiku
+          version: 'r1beta6'
+
+      - name: Install dependencies
+        run: pkgman install cmake qt6_base
+
+      - name: Clone repositories
+        run: |
+          cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} \
+                -DREDASM_SHALLOW=ON \
+                ${{ inputs.version != '' && format('-DREDASM_VERSION_DEFAULT="{0}"', inputs.version) || '' }} \
+                -P Setup.cmake
+
+      - name: Configure
+        run: |
+          cmake -B build -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release \
+                ${{ inputs.version != '' && format('-DREDASM_RELEASE_TAG="{0}"', inputs.version) || '' }} \
+                ${{ inputs.run_tests && format('-DREDASM_SAMPLES="{0}/samples"', github.workspace) || '' }}
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        if: inputs.run_tests
+        run: ctest --test-dir build --output-on-failure
