@@ -32,7 +32,6 @@ jobs:
     with:
       run_tests: true
 
-  # build-haiku:
-  # uses: ./.github/workflows/build-haiku.yml
-  # with:
-  #   run_tests: true
+  build-haiku:
+    uses: ./.github/workflows/build-haiku.yml
+    # compile-only: tier0 test hangs (unresolved fcntl/locking issue)

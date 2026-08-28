@@ -20,13 +20,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Start VM
-        uses: cross-platform-actions/action@v1.4.0
+        uses: cross-platform-actions/action@v1.5.0
         with:
           operating_system: haiku
           version: 'r1beta6'
 
       - name: Install dependencies
-        run: pkgman install cmake qt6_base
+        run: pkgman install cmake qt6_base qt6_base_devel -y
 
       - name: Clone repositories
         run: |
@@ -37,13 +37,13 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build -G Ninja \
+          cmake -B build \
                 -DCMAKE_BUILD_TYPE=Release \
                 ${{ inputs.version != '' && format('-DREDASM_RELEASE_TAG="{0}"', inputs.version) || '' }} \
                 ${{ inputs.run_tests && format('-DREDASM_SAMPLES="{0}/samples"', github.workspace) || '' }}
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build
 
       - name: Test
         if: inputs.run_tests
