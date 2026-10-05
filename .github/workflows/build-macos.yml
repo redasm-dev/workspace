@@ -13,14 +13,25 @@ on:
 jobs:
   build-macos:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        architecture: [universal, x86_64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.11.2'
+          host: 'mac'
+          target: 'desktop'
+          cache: true
+
       - name: Install dependencies
         run: |
           brew update
-          brew install cmake qt6 ninja
+          brew install cmake ninja
 
       - name: Clone repositories
         run: |
@@ -31,8 +42,17 @@ jobs:
 
       - name: Configure
         run: |
+          if [ "${{ matrix.architecture }}" = "universal" ]; then
+            ARCH_FLAGS="arm64;x86_64"
+          else
+            ARCH_FLAGS="${{ matrix.architecture }}"
+          fi
+          
           cmake -B build -G Ninja \
                 -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_PREFIX_PATH="$Qt6_DIR" \
+                -DCMAKE_OSX_ARCHITECTURES="$ARCH_FLAGS" \
+                -DCMAKE_OSX_DEPLOYMENT_TARGET="14.0" \
                 ${{ inputs.version != '' && format('-DREDASM_RELEASE_TAG="{0}"', inputs.version) || '' }} \
                 ${{ inputs.run_tests && format('-DREDASM_SAMPLES="{0}/samples"', github.workspace) || '' }}
 
@@ -40,6 +60,17 @@ jobs:
         run: cmake --build build --parallel
 
       - name: Test
-        if: inputs.run_tests
+        if: inputs.run_tests && matrix.architecture != 'universal'
         run: ctest --test-dir build --output-on-failure
 
+      - name: Deploy Qt and Create DMG
+        run: |
+          macdeployqt "${{ github.workspace }}/build/redasm/redasm-gui.app" -dmg
+          mv "${{ github.workspace }}/build/redasm/redasm-gui.dmg" "${{ github.workspace }}/build/redasm/REDasm-macos-${{ matrix.architecture }}.dmg"
+
+      - name: Upload DMG Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: REDasm-macos-${{ matrix.architecture }}
+          path: build/redasm/REDasm-macos-${{ matrix.architecture }}.dmg
+          retention-days: 7
