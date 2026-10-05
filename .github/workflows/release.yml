@@ -21,8 +21,14 @@ jobs:
       version: ${{ github.event.client_payload.tag }}
       run_tests: true
 
+  build-macos:
+    uses: ./.github/workflows/build-macos.yml
+    with:
+      version: ${{ github.event.client_payload.tag }}
+      run_tests: true
+
   publish:
-    needs: [ build-linux, build-windows ]
+    needs: [ build-linux, build-windows, build-macos ]
     runs-on: ubuntu-latest
     env:
       TAG: ${{ github.event.client_payload.tag }}
@@ -43,7 +49,22 @@ jobs:
           name: REDasm-windows-x86_64
           path: redasm-windows-x86_64/
 
-      - name: Rename AppImage
+      - name: Download macOS Universal artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: REDasm-macos-universal
+
+      - name: Download macOS x86_64 artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: REDasm-macos-x86_64
+
+      - name: Download macOS arm64 artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: REDasm-macos-arm64
+
+      - name: Rename Linux AppImage
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: mv REDasm-linux-x86_64.AppImage "REDasm-${VERSION}-linux-x86_64.AppImage"
@@ -53,12 +74,23 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: zip -r "REDasm-${VERSION}-windows-x86_64.zip" redasm-windows-x86_64/
 
+      - name: Rename macOS DMG files
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mv REDasm-macos-universal.dmg "REDasm-${VERSION}-macos-universal.dmg"
+          mv REDasm-macos-x86_64.dmg "REDasm-${VERSION}-macos-x86_64.dmg"
+          mv REDasm-macos-arm64.dmg "REDasm-${VERSION}-macos-arm64.dmg"
+
       - name: Checksum artifacts
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           sha256sum "REDasm-${VERSION}-linux-x86_64.AppImage" > "REDasm-${VERSION}-linux-x86_64.AppImage.sha256"
           sha256sum "REDasm-${VERSION}-windows-x86_64.zip" > "REDasm-${VERSION}-windows-x86_64.zip.sha256"
+          sha256sum "REDasm-${VERSION}-macos-universal.dmg" > "REDasm-${VERSION}-macos-universal.dmg.sha256"
+          sha256sum "REDasm-${VERSION}-macos-x86_64.dmg" > "REDasm-${VERSION}-macos-x86_64.dmg.sha256"
+          sha256sum "REDasm-${VERSION}-macos-arm64.dmg" > "REDasm-${VERSION}-macos-arm64.dmg.sha256"
 
       - name: Sign checksums
         env:
@@ -67,10 +99,11 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.RD_GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
-            --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-linux-x86_64.AppImage.sha256"
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
-            --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-windows-x86_64.zip.sha256"
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-linux-x86_64.AppImage.sha256"
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-windows-x86_64.zip.sha256"
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-macos-universal.dmg.sha256"
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-macos-x86_64.dmg.sha256"
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor "REDasm-${VERSION}-macos-arm64.dmg.sha256"
 
       - name: Verify signatures and checksums
         env:
@@ -78,8 +111,14 @@ jobs:
         run: |
           gpg --verify "REDasm-${VERSION}-linux-x86_64.AppImage.sha256.asc" "REDasm-${VERSION}-linux-x86_64.AppImage.sha256"
           gpg --verify "REDasm-${VERSION}-windows-x86_64.zip.sha256.asc" "REDasm-${VERSION}-windows-x86_64.zip.sha256"
+          gpg --verify "REDasm-${VERSION}-macos-universal.dmg.sha256.asc" "REDasm-${VERSION}-macos-universal.dmg.sha256"
+          gpg --verify "REDasm-${VERSION}-macos-x86_64.dmg.sha256.asc" "REDasm-${VERSION}-macos-x86_64.dmg.sha256"
+          gpg --verify "REDasm-${VERSION}-macos-arm64.dmg.sha256.asc" "REDasm-${VERSION}-macos-arm64.dmg.sha256"
           sha256sum -c "REDasm-${VERSION}-linux-x86_64.AppImage.sha256"
           sha256sum -c "REDasm-${VERSION}-windows-x86_64.zip.sha256"
+          sha256sum -c "REDasm-${VERSION}-macos-universal.dmg.sha256"
+          sha256sum -c "REDasm-${VERSION}-macos-x86_64.dmg.sha256"
+          sha256sum -c "REDasm-${VERSION}-macos-arm64.dmg.sha256"
 
       - name: Publish release
         uses: softprops/action-gh-release@v3
@@ -97,3 +136,12 @@ jobs:
             REDasm-${{ steps.version.outputs.version }}-windows-x86_64.zip
             REDasm-${{ steps.version.outputs.version }}-windows-x86_64.zip.sha256
             REDasm-${{ steps.version.outputs.version }}-windows-x86_64.zip.sha256.asc
+            REDasm-${{ steps.version.outputs.version }}-macos-universal.dmg
+            REDasm-${{ steps.version.outputs.version }}-macos-universal.dmg.sha256
+            REDasm-${{ steps.version.outputs.version }}-macos-universal.dmg.sha256.asc
+            REDasm-${{ steps.version.outputs.version }}-macos-x86_64.dmg
+            REDasm-${{ steps.version.outputs.version }}-macos-x86_64.dmg.sha256
+            REDasm-${{ steps.version.outputs.version }}-macos-x86_64.dmg.sha256.asc
+            REDasm-${{ steps.version.outputs.version }}-macos-arm64.dmg
+            REDasm-${{ steps.version.outputs.version }}-macos-arm64.dmg.sha256
+            REDasm-${{ steps.version.outputs.version }}-macos-arm64.dmg.sha256.asc
