@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.20)
 
 project(redasm-workspace C CXX)
 
+macro(redasm_stage target dest)
+    add_custom_target(stage_${target} ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${dest}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${target}>" "${dest}/"
+        COMMENT "Staging ${target} -> ${dest}"
+        DEPENDS ${target}
+    )
+endmacro()
+
 if(WIN32)
     set(CMAKE_INSTALL_BINDIR ".")
     set(CMAKE_INSTALL_LIBDIR ".")
@@ -24,20 +33,6 @@ add_subdirectory(analyzers)
 add_subdirectory(commands)
 add_subdirectory(kb)
 
-if(REDASM_SAMPLES)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
-macro(redasm_stage target dest)
-    add_custom_target(stage_${target} ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${dest}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${target}>" "${dest}/"
-        COMMENT "Staging ${target} -> ${dest}"
-        DEPENDS ${target}
-    )
-endmacro()
-
 redasm_stage(redasm "$<TARGET_FILE_DIR:redasm-gui>")
 
 set(REDASM_PLUGIN_TYPES
@@ -46,6 +41,19 @@ set(REDASM_PLUGIN_TYPES
     analyzers
     commands
 )
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/mcp/CMakeLists.txt")
+    add_subdirectory(mcp)
+    list(APPEND REDASM_PLUGIN_TYPES mcp)
+    message(STATUS "Enabling MCP support")
+else()
+    message(STATUS "MCP support not available")
+endif()
+
+if(REDASM_SAMPLES)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
 foreach(type ${REDASM_PLUGIN_TYPES})
     get_property(subdirs DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${type}" PROPERTY SUBDIRECTORIES)
@@ -67,4 +75,3 @@ add_custom_target(stage_kb ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/kb" "$<TARGET_FILE_DIR:redasm-gui>/kb"
     COMMENT "Staging kb -> $<TARGET_FILE_DIR:redasm-gui>/kb/"
 )
-
