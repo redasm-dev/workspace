@@ -167,11 +167,11 @@ Verify in two steps: first the signature, then the checksum:
  
 ```sh
 # 1. Verify the checksum file itself is authentic
-gpg --verify REDasm-4.0.1-linux-x86_64.AppImage.sha256.asc REDasm-4.0.1-linux-x86_64.AppImage.sha256
+gpg --verify REDasm-4.0.1-x86_64.AppImage.sha256.asc REDasm-4.0.1-x86_64.AppImage.sha256
 gpg --verify REDasm-4.0.1-windows-x86_64.zip.sha256.asc REDasm-4.0.1-windows-x86_64.zip.sha256
 
 # 2. Verify the downloaded artifact matches that checksum
-sha256sum -c REDasm-4.0.1-linux-x86_64.AppImage.sha256
+sha256sum -c REDasm-4.0.1-x86_64.AppImage.sha256
 sha256sum -c REDasm-4.0.1-windows-x86_64.zip.sha256
 ```
 For nightly builds, filenames use `nightly` in place of the version.

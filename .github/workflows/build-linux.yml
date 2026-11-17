@@ -77,12 +77,9 @@ jobs:
             --plugin qt \
             --output appimage
 
-      - name: Rename AppImage
-        run: mv REDasm-x86_64.AppImage REDasm-linux-x86_64.AppImage
-
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: REDasm-linux-x86_64
-          path: REDasm-linux-x86_64.AppImage
+          path: REDasm-x86_64.AppImage
           retention-days: 7

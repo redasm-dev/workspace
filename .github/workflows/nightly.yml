@@ -71,24 +71,24 @@ jobs:
           name: REDasm-macos-arm64
 
       - name: Rename Linux AppImage
-        run: mv REDasm-linux-x86_64.AppImage REDasm-nightly-linux-x86_64.AppImage
+        run: mv REDasm-x86_64.AppImage REDasm-nightly-x86_64.AppImage
  
       - name: Package Windows
         run: zip -r REDasm-nightly-windows-x86_64.zip redasm-windows-x86_64/
 
       - name: Rename macOS DMG files
         run: |
-          mv REDasm-macos-universal.dmg REDasm-nightly-macos-universal.dmg
-          mv REDasm-macos-x86_64.dmg REDasm-nightly-macos-x86_64.dmg
-          mv REDasm-macos-arm64.dmg REDasm-nightly-macos-arm64.dmg
+          mv REDasm-macos-universal.dmg REDasm-nightly-universal.dmg
+          mv REDasm-macos-x86_64.dmg REDasm-nightly-x86_64.dmg
+          mv REDasm-macos-arm64.dmg REDasm-nightly-arm64.dmg
 
       - name: Checksum artifacts
         run: |
-          sha256sum REDasm-nightly-linux-x86_64.AppImage > REDasm-nightly-linux-x86_64.AppImage.sha256
+          sha256sum REDasm-nightly-x86_64.AppImage > REDasm-nightly-x86_64.AppImage.sha256
           sha256sum REDasm-nightly-windows-x86_64.zip > REDasm-nightly-windows-x86_64.zip.sha256
-          sha256sum REDasm-nightly-macos-universal.dmg > REDasm-nightly-macos-universal.dmg.sha256
-          sha256sum REDasm-nightly-macos-x86_64.dmg > REDasm-nightly-macos-x86_64.dmg.sha256
-          sha256sum REDasm-nightly-macos-arm64.dmg > REDasm-nightly-macos-arm64.dmg.sha256
+          sha256sum REDasm-nightly-universal.dmg > REDasm-nightly-universal.dmg.sha256
+          sha256sum REDasm-nightly-x86_64.dmg > REDasm-nightly-x86_64.dmg.sha256
+          sha256sum REDasm-nightly-arm64.dmg > REDasm-nightly-arm64.dmg.sha256
 
       - name: Sign checksums
         env:
@@ -96,24 +96,24 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.RD_NIGHTLY_GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-linux-x86_64.AppImage.sha256
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-x86_64.AppImage.sha256
           echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-windows-x86_64.zip.sha256
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-macos-universal.dmg.sha256
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-macos-x86_64.dmg.sha256
-          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-macos-arm64.dmg.sha256
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-universal.dmg.sha256
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-x86_64.dmg.sha256
+          echo "$GPG_PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 --detach-sign --armor REDasm-nightly-arm64.dmg.sha256
 
       - name: Verify signatures and checksums
         run: |
-          gpg --verify REDasm-nightly-linux-x86_64.AppImage.sha256.asc REDasm-nightly-linux-x86_64.AppImage.sha256
+          gpg --verify REDasm-nightly-x86_64.AppImage.sha256.asc REDasm-nightly-x86_64.AppImage.sha256
           gpg --verify REDasm-nightly-windows-x86_64.zip.sha256.asc REDasm-nightly-windows-x86_64.zip.sha256
-          gpg --verify REDasm-nightly-macos-universal.dmg.sha256.asc REDasm-nightly-macos-universal.dmg.sha256
-          gpg --verify REDasm-nightly-macos-x86_64.dmg.sha256.asc REDasm-nightly-macos-x86_64.dmg.sha256
-          gpg --verify REDasm-nightly-macos-arm64.dmg.sha256.asc REDasm-nightly-macos-arm64.dmg.sha256
-          sha256sum -c REDasm-nightly-linux-x86_64.AppImage.sha256
+          gpg --verify REDasm-nightly-universal.dmg.sha256.asc REDasm-nightly-universal.dmg.sha256
+          gpg --verify REDasm-nightly-x86_64.dmg.sha256.asc REDasm-nightly-x86_64.dmg.sha256
+          gpg --verify REDasm-nightly-arm64.dmg.sha256.asc REDasm-nightly-arm64.dmg.sha256
+          sha256sum -c REDasm-nightly-x86_64.AppImage.sha256
           sha256sum -c REDasm-nightly-windows-x86_64.zip.sha256
-          sha256sum -c REDasm-nightly-macos-universal.dmg.sha256
-          sha256sum -c REDasm-nightly-macos-x86_64.dmg.sha256
-          sha256sum -c REDasm-nightly-macos-arm64.dmg.sha256
+          sha256sum -c REDasm-nightly-universal.dmg.sha256
+          sha256sum -c REDasm-nightly-x86_64.dmg.sha256
+          sha256sum -c REDasm-nightly-arm64.dmg.sha256
 
       - name: Get current date
         id: date
@@ -129,18 +129,18 @@ jobs:
           prerelease: true
           body: ${{ needs.check.outputs.changelog }}
           files: |
-            REDasm-nightly-linux-x86_64.AppImage
-            REDasm-nightly-linux-x86_64.AppImage.sha256
-            REDasm-nightly-linux-x86_64.AppImage.sha256.asc
+            REDasm-nightly-x86_64.AppImage
+            REDasm-nightly-x86_64.AppImage.sha256
+            REDasm-nightly-x86_64.AppImage.sha256.asc
             REDasm-nightly-windows-x86_64.zip
             REDasm-nightly-windows-x86_64.zip.sha256
             REDasm-nightly-windows-x86_64.zip.sha256.asc
-            REDasm-nightly-macos-universal.dmg
-            REDasm-nightly-macos-universal.dmg.sha256
-            REDasm-nightly-macos-universal.dmg.sha256.asc
-            REDasm-nightly-macos-x86_64.dmg
-            REDasm-nightly-macos-x86_64.dmg.sha256
-            REDasm-nightly-macos-x86_64.dmg.sha256.asc
-            REDasm-nightly-macos-arm64.dmg
-            REDasm-nightly-macos-arm64.dmg.sha256
-            REDasm-nightly-macos-arm64.dmg.sha256.asc
+            REDasm-nightly-universal.dmg
+            REDasm-nightly-universal.dmg.sha256
+            REDasm-nightly-universal.dmg.sha256.asc
+            REDasm-nightly-x86_64.dmg
+            REDasm-nightly-x86_64.dmg.sha256
+            REDasm-nightly-x86_64.dmg.sha256.asc
+            REDasm-nightly-arm64.dmg
+            REDasm-nightly-arm64.dmg.sha256
+            REDasm-nightly-arm64.dmg.sha256.asc
