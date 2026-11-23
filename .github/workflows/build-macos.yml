@@ -36,6 +36,7 @@ jobs:
       - name: Clone repositories
         run: |
           cmake -DREDASM_FETCH_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} \
+                -DREDASM_MCP=ON \
                 -DREDASM_SHALLOW=ON \
                 ${{ inputs.version != '' && format('-DREDASM_VERSION_DEFAULT="{0}"', inputs.version) || '' }} \
                 -P Setup.cmake
