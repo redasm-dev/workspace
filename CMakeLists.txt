@@ -2,15 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(redasm-workspace C CXX)
 
-macro(redasm_stage target dest)
-    add_custom_target(stage_${target} ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${dest}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${target}>" "${dest}/"
-        COMMENT "Staging ${target} -> ${dest}"
-        DEPENDS ${target}
-    )
-endmacro()
-
 if(WIN32)
     set(CMAKE_INSTALL_BINDIR ".")
     set(CMAKE_INSTALL_LIBDIR ".")
@@ -24,6 +15,8 @@ else()
     set(REDASM_INSTALL_PLUGINS "${CMAKE_INSTALL_LIBDIR}/redasm/plugins")
     set(REDASM_INSTALL_KB "${CMAKE_INSTALL_DATADIR}/redasm/kb")
 endif()
+
+set(REDASM_STAGE_DIR "$<TARGET_FILE_DIR:redasm-gui>")
 
 add_subdirectory(core)
 add_subdirectory(redasm)
