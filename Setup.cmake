@@ -5,6 +5,10 @@ find_package(Git REQUIRED)
 if(NOT GIT_FOUND)
     message(FATAL_ERROR "Git is required to clone repositories. Please install Git and try again.")
 endif()
+
+if(NOT DEFINED REDASM_MCP)
+    set(REDASM_MCP OFF)
+endif()
  
 if(NOT DEFINED REDASM_FETCH_TESTS)
     set(REDASM_FETCH_TESTS OFF)
@@ -38,6 +42,7 @@ set(LOADERS_VERSION    $ENV{LOADERS_VERSION})
 set(PROCESSORS_VERSION $ENV{PROCESSORS_VERSION})
 set(COMMANDS_VERSION   $ENV{COMMANDS_VERSION})
 set(ANALYZERS_VERSION  $ENV{ANALYZERS_VERSION})
+set(MCP_VERSION        $ENV{MCP_VERSION})
  
 # Allow -D overrides to take precedence over environment
 # unset falls back to the shared default rather than a hardcoded "master".
@@ -62,6 +67,9 @@ endif()
 if(NOT KB_VERSION)
     set(KB_VERSION "master")
 endif()
+if(NOT MCP_VERSION)
+    set(MCP_VERSION "master")
+endif()
  
 set(BASE_URL "https://github.com/redasm-dev")
  
@@ -73,6 +81,7 @@ set(REPO_processors ${PROCESSORS_VERSION})
 set(REPO_commands   ${COMMANDS_VERSION})
 set(REPO_analyzers  ${ANALYZERS_VERSION})
 set(REPO_kb         ${KB_VERSION})
+set(REPO_mcp        ${MCP_VERSION})
 set(REPO_tests      "master")  # no tagging here
 set(REPO_samples    "master")  # no tagging here
  
@@ -85,6 +94,10 @@ set(REPOS
     commands 
     kb
 )
+
+if(REDASM_MCP)
+    list(APPEND REPOS mcp)
+endif()
 
 if(REDASM_FETCH_TESTS)
     list(APPEND REPOS tests)
