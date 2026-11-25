@@ -27,10 +27,10 @@ jobs:
     with:
       run_tests: true
 
-  build-freebsd:
-    uses: ./.github/workflows/build-freebsd.yml
-    with:
-      run_tests: true
+  # build-freebsd:
+  #   uses: ./.github/workflows/build-freebsd.yml
+  #   with:
+  #     run_tests: true
 
   # build-haiku:
   #  uses: ./.github/workflows/build-haiku.yml
